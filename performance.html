@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>OlympicInfo</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v6.js"></script>
+
+
+<style>
+.flex-container {
+    display: flex;
+}
+
+.flex-child {
+    flex: 1;
+}  
+
+.flex-child:first-child {
+    margin-right: 20px;
+} 
+
+  body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
+  body {font-size:16px;}
+  .w3-half img{margin-bottom:-6px;margin-top:16px;opacity:0.8;cursor:pointer}
+  .w3-half img:hover{opacity:1}
+  
+  
+  hr.rounded {
+    border-top: 5px solid #bbb;
+    border-radius: 5px;
+  }
+  
+  
+  /*the container must be positioned relative:*/
+  .autocomplete {
+    position: relative;
+    display: inline-block;
+  }
+  
+  input {
+    border: 1px solid transparent;
+    background-color: #ffffff;
+    padding: 10px;
+    font-size: 10px;
+  }
+  
+  input[type=text] {
+    background-color: #ffffff;
+    width: 17vw;
+  }
+  
+  input[type=submit] {
+    background-color: DodgerBlue;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    top: 100%;
+    left: 0;
+    right: 0;
+  }
+  
+  .autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #fff; 
+    border-bottom: 1px solid #d4d4d4; 
+  }
+  
+  /*when hovering an item:*/
+  .autocomplete-items div:hover {
+    background-color: #e9e9e9; 
+  }
+  
+  /*when navigating through the items using the arrow keys:*/
+  .autocomplete-active {
+    background-color: DodgerBlue !important; 
+    color: #ffffff; 
+  }
+  
+  </style>
+
+
+<style>
+  
+  div.tooltip {   
+    position: absolute;
+    padding: 7px;
+    font-size: 0.8em;
+    pointer-events: none;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+  }
+</style>
+
+</head>
+<body>
+
+<!-- Sidebar/menu -->
+<nav class="w3-sidebar w3-light-gray w3-collapse w3-top w3-large w3-padding" style="z-index:3;width:300px;font-weight:bold;" id="mySidebar"><br>
+    <img src="img/logo.png" alt="ERROR" width="100%" height="150">
+  <div class="w3-container">
+    <h3 class="w3-padding"><b>OlympicInfo</b></h3>
+  </div>
+  <div class="w3-bar-block">
+    <a href="index.html"  class="w3-bar-item w3-button w3-hover-blue">Home</a> 
+    <a href="map.html"  class="w3-bar-item w3-button w3-hover-yellow">Mapa</a> 
+    <a href="modalitys.html"  class="w3-bar-item w3-button w3-hover-black">Modalidades</a> 
+    <a href="performance.html"  class="w3-bar-item w3-button w3-hover-green">Performance</a> 
+    <a href="authors.html"  class="w3-bar-item w3-button w3-hover-red">Autores</a> 
+  </div>
+</nav>
+
+
+<div class="w3-light-gray w3-container w3-padding" style="margin-top:0px;padding-right:58px"><p class="w3-center">Performance dos países ao longo das ultimas 10 edições de Verão/Inverno  </p></div>
+
+
+<!-- !PAGE CONTENT! -->
+<div style="margin-left: 300px;
+padding-left: 2vw;
+padding-top: 1vw;">
+
+    <div style="z-index: 5; transform: rotate(-90deg); margin-left: -24vw; width: 47vw;">
+      <div style="text-align: left;"><span id="legenda_lateral"> Número de Medalhas </span></div> 
+    </div>
+    <div style="width: 100%;">
+        <div style="width: 75%; height: 600px; float: left; background: rgb(255, 255, 255);"> 
+          <div id="my_dataviz"></div>
+          <div style="z-index: 5; text-align: center;"> Edições </div>
+        </div>
+        <div style="margin-left: 25%; height: 600px;" class="w3-light-gray"> 
+            <div style="margin-left: 40.5vw;padding-top: 1vw;">
+
+
+                <h3 style="margin-top: -1vw;">Filtros</h3>
+                <p">Países</p>
+                <div class="search-container">
+                    
+                    <div class="autocomplete" style="width:300px;">
+                        <input id="pais1" type="text" name="myCountry" placeholder="País">
+                    </div>
+                    
+                </div>
+                <div class="search-container">
+                    
+                  <div class="autocomplete" style="width:300px;">
+                      <input id="pais2" type="text" name="myCountry" placeholder="País">
+                  </div>
+                  
+              </div>
+              <div class="search-container">
+                    
+                <div class="autocomplete" style="width:300px;">
+                    <input id="pais3" type="text" name="myCountry" placeholder="País">
+                </div>
+                
+            </div>
+                <hr class="rounded" style="width: 17vw;">
+
+                <p style="margin-top: -1vw; margin-bottom: 0.5vw;">Temporada</p>
+
+                <div class="flex-container">
+
+                  <div class="flex-child magenta">
+                    <input type="radio" id="summer" name="season" value="summer">
+                    <label for="summer">Verão</label><br>
+                  </div>
+                  
+                  <div class="flex-child green">
+                    <input type="radio" id="winter" name="season" value="winter">
+                    <label for="winter">Inverno</label><br> 
+                  </div>
+                  
+                </div>
+
+                
+                
+                 
+                <hr class="rounded" style="width: 17vw;">
+
+                <p style="margin-top: -1vw;margin-bottom: 0.5vw;">Género</p>
+                <div style="display: flex;">
+                  <div style="flex: 0.8;">
+                    <input type="radio" id="all" name="gender" value="all">
+                    <label for="all">Todos</label><br>
+                  </div>
+                  <div style="flex: 1;">
+                    <input type="radio" id="m" name="gender" value="m">
+                    <label for="m">Homens</label><br>  
+                  </div> 
+                  <div style="flex: 1;">
+                    <input type="radio" id="f" name="gender" value="f">
+                    <label for="f">Mulheres</label>
+                  </div>
+                </div>
+
+                
+                
+                
+                
+                <hr class="rounded" style="width: 17vw;">
+
+                <p style="margin-top: -1vw;margin-bottom: 0.5vw;">Medalhas</p>
+                <input type="radio" id="all_medal" name="medals" value="all_medal">
+                <label for="all_medal">Todos</label><br>
+                <input type="radio" id="any" name="medals" value="any">
+                <label for="any">Qualquer medalha</label><br>
+                <input type="radio" id="gold" name="medals" value="gold">
+                <label for="gold">Ouro</label><br>  
+                <input type="radio" id="silver" name="medals" value="silver">
+                <label for="silver">Prata</label><br>  
+                <input type="radio" id="bronze" name="medals" value="bronze">
+                <label for="bronze">Bronze</label><br>
+
+                <input type="submit" value="Submit" style="margin-left: 13vw;" onclick="filter()">
+
+            </div>
+            
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+  // ON LOAD
+
+// set the dimensions and margins of the graph
+const margin = {top: 10, right: 100, bottom: 30, left: 30},
+        width = 900 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
+    
+    // append the svg object to the body of the page
+    const svg = d3.select("#my_dataviz")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",`translate(${margin.left},${margin.top})`);
+    
+    //Read the data
+
+    var csv_data = "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_connectedscatter.csv";
+
+
+    d3.csv(csv_data).then(function(data) {
+    
+        // List of groups (here I have one group per column)
+        const allGroup = ["valueA", "valueB", "valueC"]
+    
+        
+
+        // I strongly advise to have a look to dataReady with
+        console.log(dataReady)
+        var dataReady=[{name: '', values: []}];
+    
+        // A color scale: one color for each group
+        const myColor = d3.scaleOrdinal()
+          .domain(allGroup)
+          .range(d3.schemeSet2);
+    
+        // Add X axis --> it is a date format
+        const x = d3.scaleLinear()
+          .domain([0,10])
+          .range([ 0, width ]);
+        svg.append("g")
+          .attr("transform", `translate(0, ${height})`)
+          .call(d3.axisBottom(x));
+    
+        // Add Y axis
+        const y = d3.scaleLinear()
+          .domain( [0,20])
+          .range([ height, 0 ]);
+        svg.append("g")
+          .call(d3.axisLeft(y));
+    
+        // Add the lines
+        const line = d3.line()
+          .x(d => x(+d.time))
+          .y(d => y(+d.value))
+        svg.selectAll("myLines")
+          .data(dataReady)
+          .join("path")
+            .attr("class", d => d.name)
+            .attr("d", d => line(d.values))
+            .attr("stroke", d => myColor(d.name))
+            .style("stroke-width", 4)
+            .style("fill", "none")
+    
+        // Add the points
+        svg
+          // First we need to enter in a group
+          .selectAll("myDots")
+          .data(dataReady)
+          .join('g')
+            .style("fill", d => myColor(d.name))
+            .attr("class", d => d.name)
+          // Second we need to enter in the 'values' part of this group
+          .selectAll("myPoints")
+          .data(d => d.values)
+          .join("circle")
+            .attr("cx", d => x(d.time))
+            .attr("cy", d => y(d.value))
+            .attr("r", 5)
+            .attr("stroke", "white")
+    
+        // Add a label at the end of each line
+        svg
+          .selectAll("myLabels")
+          .data(dataReady)
+          .join('g')
+            .append("text")
+              .attr("class", d => d.name)
+              .datum(d => { return {name: d.name, value: d.values[d.values.length - 1]}; }) // keep only the last value of each time series
+              .attr("transform", d => `translate(${x(d.value.time)},${y(d.value.value)})`) // Put the text at the position of the last point
+              .attr("x", 12) // shift the text a bit more right
+              .text(d => d.name)
+              .style("fill", d => myColor(d.name))
+              .style("font-size", 15)
+    
+        // Add a legend (interactive)
+        svg
+          .selectAll("myLegend")
+          .data(dataReady)
+          .join('g')
+            .append("text")
+              .attr('x', (d,i) => 30 + i*60)
+              .attr('y', 30)
+              .text(d => d.name)
+              .style("fill", d => myColor(d.name))
+              .style("font-size", 15)
+            .on("click", function(event,d){
+              // is the element currently visible ?
+              currentOpacity = d3.selectAll("." + d.name).style("opacity")
+              // Change the opacity: from 0 to 1 or from 1 to 0
+              d3.selectAll("." + d.name).transition().style("opacity", currentOpacity == 1 ? 0:1)
+    
+            })
+    })
+
+
+</script>
+
+<script>
+
+  function create_graph(pais1,pais2,pais3,genero,medalhas,temporada){
+
+    d3.select("#my_dataviz").selectAll('*').remove();
+
+    // set the dimensions and margins of the graph
+    const margin = {top: 10, right: 100, bottom: 30, left: 30},
+        width = 900 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
+
+    const tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
+    const translate = {
+  "Afghanistan": {
+    "NOC": "AFG"
+  },
+  "Curacao": {
+    "NOC": "AHO"
+  },
+  "Albania": {
+    "NOC": "ALB"
+  },
+  "Algeria": {
+    "NOC": "ALG"
+  },
+  "Andorra": {
+    "NOC": "AND"
+  },
+  "Angola": {
+    "NOC": "ANG"
+  },
+  "Antigua": {
+    "NOC": "ANT"
+  },
+  "Argentina": {
+    "NOC": "ARG"
+  },
+  "Armenia": {
+    "NOC": "ARM"
+  },
+  "Aruba": {
+    "NOC": "ARU"
+  },
+  "American Samoa": {
+    "NOC": "ASA"
+  },
+  "Australia": {
+    "NOC": "AUS"
+  },
+  "Austria": {
+    "NOC": "AUT"
+  },
+  "Azerbaijan": {
+    "NOC": "AZE"
+  },
+  "Bahamas": {
+    "NOC": "BAH"
+  },
+  "Bangladesh": {
+    "NOC": "BAN"
+  },
+  "Barbados": {
+    "NOC": "BAR"
+  },
+  "Burundi": {
+    "NOC": "BDI"
+  },
+  "Belgium": {
+    "NOC": "BEL"
+  },
+  "Benin": {
+    "NOC": "BEN"
+  },
+  "Bermuda": {
+    "NOC": "BER"
+  },
+  "Bhutan": {
+    "NOC": "BHU"
+  },
+  "Bosnia and Herzegovina": {
+    "NOC": "BIH"
+  },
+  "Belize": {
+    "NOC": "BIZ"
+  },
+  "Belarus": {
+    "NOC": "BLR"
+  },
+  "Boliva": {
+    "NOC": "BOL"
+  },
+  "Botswana": {
+    "NOC": "BOT"
+  },
+  "Brazil": {
+    "NOC": "BRA"
+  },
+  "Bahrain": {
+    "NOC": "BRN"
+  },
+  "Brunei": {
+    "NOC": "BRU"
+  },
+  "Bulgaria": {
+    "NOC": "BUL"
+  },
+  "Burkina Faso": {
+    "NOC": "BUR"
+  },
+  "Central African Republic": {
+    "NOC": "CAF"
+  },
+  "Cambodia": {
+    "NOC": "CAM"
+  },
+  "Canada": {
+    "NOC": "CAN"
+  },
+  "Cayman Islands": {
+    "NOC": "CAY"
+  },
+  "Republic of Congo": {
+    "NOC": "CGO"
+  },
+  "Chad": {
+    "NOC": "CHA"
+  },
+  "Chile": {
+    "NOC": "CHI"
+  },
+  "China": {
+    "NOC": "CHN"
+  },
+  "Ivory Coast": {
+    "NOC": "CIV"
+  },
+  "Cameroon": {
+    "NOC": "CMR"
+  },
+  "Democratic Republic of the Congo": {
+    "NOC": "COD"
+  },
+  "Cook Islands": {
+    "NOC": "COK"
+  },
+  "Colombia": {
+    "NOC": "COL"
+  },
+  "Comoros": {
+    "NOC": "COM"
+  },
+  "Cape Verde": {
+    "NOC": "CPV"
+  },
+  "Costa Rica": {
+    "NOC": "CRC"
+  },
+  "Croatia": {
+    "NOC": "CRO"
+  },
+  "Cuba": {
+    "NOC": "CUB"
+  },
+  "Cyprus": {
+    "NOC": "CYP"
+  },
+  "Czech Republic": {
+    "NOC": "CZE"
+  },
+  "Denmark": {
+    "NOC": "DEN"
+  },
+  "Djibouti": {
+    "NOC": "DJI"
+  },
+  "Dominica": {
+    "NOC": "DMA"
+  },
+  "Dominican Republic": {
+    "NOC": "DOM"
+  },
+  "Ecuador": {
+    "NOC": "ECU"
+  },
+  "Egypt": {
+    "NOC": "EGY"
+  },
+  "Eritrea": {
+    "NOC": "ERI"
+  },
+  "El Salvador": {
+    "NOC": "ESA"
+  },
+  "Spain": {
+    "NOC": "ESP"
+  },
+  "Estonia": {
+    "NOC": "EST"
+  },
+  "Ethiopia": {
+    "NOC": "ETH"
+  },
+  "Fiji": {
+    "NOC": "FIJ"
+  },
+  "Finland": {
+    "NOC": "FIN"
+  },
+  "France": {
+    "NOC": "FRA"
+  },
+  "Micronesia": {
+    "NOC": "FSM"
+  },
+  "Gabon": {
+    "NOC": "GAB"
+  },
+  "Gambia": {
+    "NOC": "GAM"
+  },
+  "UK": {
+    "NOC": "GBR"
+  },
+  "Guinea-Bissau": {
+    "NOC": "GBS"
+  },
+  "Georgia": {
+    "NOC": "GEO"
+  },
+  "Equatorial Guinea": {
+    "NOC": "GEQ"
+  },
+  "Germany": {
+    "NOC": "GER"
+  },
+  "Ghana": {
+    "NOC": "GHA"
+  },
+  "Greece": {
+    "NOC": "GRE"
+  },
+  "Grenada": {
+    "NOC": "GRN"
+  },
+  "Guatemala": {
+    "NOC": "GUA"
+  },
+  "Guinea": {
+    "NOC": "GUI"
+  },
+  "Guam": {
+    "NOC": "GUM"
+  },
+  "Guyana": {
+    "NOC": "GUY"
+  },
+  "Haiti": {
+    "NOC": "HAI"
+  },
+  "Honduras": {
+    "NOC": "HON"
+  },
+  "Hungary": {
+    "NOC": "HUN"
+  },
+  "Indonesia": {
+    "NOC": "INA"
+  },
+  "India": {
+    "NOC": "IND"
+  },
+  "Individual Olympic Athletes": {
+    "NOC": "IOA"
+  },
+  "Iran": {
+    "NOC": "IRI"
+  },
+  "Ireland": {
+    "NOC": "IRL"
+  },
+  "Iraq": {
+    "NOC": "IRQ"
+  },
+  "Iceland": {
+    "NOC": "ISL"
+  },
+  "Israel": {
+    "NOC": "ISR"
+  },
+  "Virgin Islands, US": {
+    "NOC": "ISV"
+  },
+  "Italy": {
+    "NOC": "ITA"
+  },
+  "Virgin Islands, British": {
+    "NOC": "IVB"
+  },
+  "Jamaica": {
+    "NOC": "JAM"
+  },
+  "Jordan": {
+    "NOC": "JOR"
+  },
+  "Japan": {
+    "NOC": "JPN"
+  },
+  "Kazakhstan": {
+    "NOC": "KAZ"
+  },
+  "Kenya": {
+    "NOC": "KEN"
+  },
+  "Kyrgyzstan": {
+    "NOC": "KGZ"
+  },
+  "Kiribati": {
+    "NOC": "KIR"
+  },
+  "South Korea": {
+    "NOC": "KOR"
+  },
+  "Kosovo": {
+    "NOC": "KOS"
+  },
+  "Saudi Arabia": {
+    "NOC": "KSA"
+  },
+  "Kuwait": {
+    "NOC": "KUW"
+  },
+  "Laos": {
+    "NOC": "LAO"
+  },
+  "Latvia": {
+    "NOC": "LAT"
+  },
+  "Libya": {
+    "NOC": "LBA"
+  },
+  "Liberia": {
+    "NOC": "LBR"
+  },
+  "Saint Lucia": {
+    "NOC": "LCA"
+  },
+  "Lesotho": {
+    "NOC": "LES"
+  },
+  "Lebanon": {
+    "NOC": "LIB"
+  },
+  "Liechtenstein": {
+    "NOC": "LIE"
+  },
+  "Lithuania": {
+    "NOC": "LTU"
+  },
+  "Luxembourg": {
+    "NOC": "LUX"
+  },
+  "Madagascar": {
+    "NOC": "MAD"
+  },
+  "Malaysia": {
+    "NOC": "MAL"
+  },
+  "Morocco": {
+    "NOC": "MAR"
+  },
+  "Malawi": {
+    "NOC": "MAW"
+  },
+  "Moldova": {
+    "NOC": "MDA"
+  },
+  "Maldives": {
+    "NOC": "MDV"
+  },
+  "Mexico": {
+    "NOC": "MEX"
+  },
+  "Mongolia": {
+    "NOC": "MGL"
+  },
+  "Marshall Islands": {
+    "NOC": "MHL"
+  },
+  "Macedonia": {
+    "NOC": "MKD"
+  },
+  "Mali": {
+    "NOC": "MLI"
+  },
+  "Malta": {
+    "NOC": "MLT"
+  },
+  "Montenegro": {
+    "NOC": "MNE"
+  },
+  "Monaco": {
+    "NOC": "MON"
+  },
+  "Mozambique": {
+    "NOC": "MOZ"
+  },
+  "Mauritius": {
+    "NOC": "MRI"
+  },
+  "Mauritania": {
+    "NOC": "MTN"
+  },
+  "Myanmar": {
+    "NOC": "MYA"
+  },
+  "Namibia": {
+    "NOC": "NAM"
+  },
+  "Nicaragua": {
+    "NOC": "NCA"
+  },
+  "Netherlands": {
+    "NOC": "NED"
+  },
+  "Nepal": {
+    "NOC": "NEP"
+  },
+  "Nigeria": {
+    "NOC": "NGR"
+  },
+  "Niger": {
+    "NOC": "NIG"
+  },
+  "Norway": {
+    "NOC": "NOR"
+  },
+  "Nauru": {
+    "NOC": "NRU"
+  },
+  "New Zealand": {
+    "NOC": "NZL"
+  },
+  "Oman": {
+    "NOC": "OMA"
+  },
+  "Pakistan": {
+    "NOC": "PAK"
+  },
+  "Panama": {
+    "NOC": "PAN"
+  },
+  "Paraguay": {
+    "NOC": "PAR"
+  },
+  "Peru": {
+    "NOC": "PER"
+  },
+  "Philippines": {
+    "NOC": "PHI"
+  },
+  "Palestine": {
+    "NOC": "PLE"
+  },
+  "Palau": {
+    "NOC": "PLW"
+  },
+  "Papua New Guinea": {
+    "NOC": "PNG"
+  },
+  "Poland": {
+    "NOC": "POL"
+  },
+  "Portugal": {
+    "NOC": "POR"
+  },
+  "North Korea": {
+    "NOC": "PRK"
+  },
+  "Puerto Rico": {
+    "NOC": "PUR"
+  },
+  "Qatar": {
+    "NOC": "QAT"
+  },
+  "NA": {
+    "NOC": "UNK"
+  },
+  "Romania": {
+    "NOC": "ROU"
+  },
+  "South Africa": {
+    "NOC": "RSA"
+  },
+  "Russia": {
+    "NOC": "RUS"
+  },
+  "Rwanda": {
+    "NOC": "RWA"
+  },
+  "Samoa": {
+    "NOC": "SAM"
+  },
+  "Senegal": {
+    "NOC": "SEN"
+  },
+  "Seychelles": {
+    "NOC": "SEY"
+  },
+  "Singapore": {
+    "NOC": "SIN"
+  },
+  "Saint Kitts": {
+    "NOC": "SKN"
+  },
+  "Sierra Leone": {
+    "NOC": "SLE"
+  },
+  "Slovenia": {
+    "NOC": "SLO"
+  },
+  "San Marino": {
+    "NOC": "SMR"
+  },
+  "Solomon Islands": {
+    "NOC": "SOL"
+  },
+  "Somalia": {
+    "NOC": "SOM"
+  },
+  "Serbia": {
+    "NOC": "SRB"
+  },
+  "Sri Lanka": {
+    "NOC": "SRI"
+  },
+  "South Sudan": {
+    "NOC": "SSD"
+  },
+  "Sao Tome and Principe": {
+    "NOC": "STP"
+  },
+  "Sudan": {
+    "NOC": "SUD"
+  },
+  "Switzerland": {
+    "NOC": "SUI"
+  },
+  "Suriname": {
+    "NOC": "SUR"
+  },
+  "Slovakia": {
+    "NOC": "SVK"
+  },
+  "Sweden": {
+    "NOC": "SWE"
+  },
+  "Swaziland": {
+    "NOC": "SWZ"
+  },
+  "Syria": {
+    "NOC": "SYR"
+  },
+  "Tanzania": {
+    "NOC": "TAN"
+  },
+  "Tonga": {
+    "NOC": "TGA"
+  },
+  "Thailand": {
+    "NOC": "THA"
+  },
+  "Tajikistan": {
+    "NOC": "TJK"
+  },
+  "Turkmenistan": {
+    "NOC": "TKM"
+  },
+  "Timor-Leste": {
+    "NOC": "TLS"
+  },
+  "Togo": {
+    "NOC": "TOG"
+  },
+  "Taiwan": {
+    "NOC": "TPE"
+  },
+  "Trinidad": {
+    "NOC": "TTO"
+  },
+  "Tunisia": {
+    "NOC": "TUN"
+  },
+  "Turkey": {
+    "NOC": "TUR"
+  },
+  "United Arab Emirates": {
+    "NOC": "UAE"
+  },
+  "Uganda": {
+    "NOC": "UGA"
+  },
+  "Ukraine": {
+    "NOC": "UKR"
+  },
+  "Uruguay": {
+    "NOC": "URU"
+  },
+  "USA": {
+    "NOC": "USA"
+  },
+  "Uzbekistan": {
+    "NOC": "UZB"
+  },
+  "Vanuatu": {
+    "NOC": "VAN"
+  },
+  "Venezuela": {
+    "NOC": "VEN"
+  },
+  "Vietnam": {
+    "NOC": "VIE"
+  },
+  "Saint Vincent": {
+    "NOC": "VIN"
+  },
+  "Yemen": {
+    "NOC": "YEM"
+  },
+  "Zambia": {
+    "NOC": "ZAM"
+  },
+  "Zimbabwe": {
+    "NOC": "ZIM"
+  }
+}
+        
+    // append the svg object to the body of the page
+    const svg = d3.select("#my_dataviz")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",`translate(${margin.left},${margin.top})`);
+    
+
+        var csv_data = "./data/map/athletes_by_country.csv";
+        switch(true) {
+      case genero === "all" && medalhas === "all_medal":
+        
+          csv_data = "./data/map/athletes_by_country.csv";
+
+        break;
+      case genero === "all" && medalhas === "any":
+      
+          csv_data = "./data/map/athletes_by_country_any.csv";
+
+        break;
+
+      case genero === "all" && medalhas === "gold":
+          csv_data = "./data/map/athletes_by_country_gold.csv";
+
+        break;
+      case genero ===  "all" &&  medalhas === "silver":
+          csv_data = "./data/map/athletes_by_country_silver.csv";
+
+        break;
+      case genero ===  "all" &&  medalhas === "bronze":
+          csv_data = "./data/map/athletes_by_country_bronze.csv";
+        
+        break;
+
+      case genero ===  "f" &&   medalhas ===  "all_medal":
+        
+          csv_data = "./data/map/females_by_country.csv";
+
+        break;
+      case genero ===  "f" &&  medalhas ===  "any":
+      
+          csv_data = "./data/map/females_by_country_any.csv";
+
+        break;
+
+      case genero ===  "f" &&  medalhas ===  "gold":
+        csv_data = "./data/map/females_by_country_gold.csv";
+
+        break;
+      case genero ===   "f" &&  medalhas ===  "silver":
+          csv_data = "./data/map/females_by_country_silver.csv";
+
+        break;
+      case genero ===  "f" &&  medalhas ===  "bronze":
+          csv_data = "./data/map/females_by_country_bronze.csv";
+        
+        break;
+
+      case genero ===   "m" && medalhas === "all_medal":
+        
+          csv_data = "./data/map/males_by_country.csv";
+
+        break;
+      case genero ===   "m" && medalhas === "any":
+      
+          csv_data = "./data/map/males_by_country_any.csv";
+
+        break;
+
+      case genero ===   "m" && medalhas === "gold":
+          csv_data = "./data/map/males_by_country_gold.csv";
+
+        break;
+      case genero === "m" && medalhas === "silver":
+          csv_data = "./data/map/males_by_country_silver.csv";
+
+        break;
+      case genero === "m" && medalhas === "bronze":
+      csv_data = "./data/map/males_by_country_bronze.csv";
+        
+        break;
+      
+      default:
+        csv_data = "./data/map/athletes_by_country.csv";
+    }
+    //Read the data
+    d3.csv(csv_data).then(function(data) {
+
+        // List of groups (here I have one group per column)
+        const allGroup = [pais1, pais2, pais3]
+
+        var jogos;
+
+        if (temporada == "summer"){
+           jogos = ["1980 Summer","1984 Summer","1988 Summer","1992 Summer","1996 Summer","2000 Summer","2004 Summer","2008 Summer","2012 Summer","2016 Summer"];
+        }else{
+           jogos = ["1980 Winter","1984 Winter","1988 Winter","1992 Winter","1994 Winter","1998 Winter","2002 Winter","2006 Winter","2010 Winter","2014 Winter"];
+        }
+        // Reformat the data: we need an array of arrays of {x, y} tuples
+        const dataReady = allGroup.map( function(grpName) { // .map allows to do something for each element of the list
+          return {
+            name: grpName,
+            values: data.filter(function(d){
+
+              if (jogos.includes(d.games) && d.code == translate[grpName].NOC ) {
+                return true;
+              }
+              return false;
+
+            }).map(function(d) {
+                tmp = d.games.split(" ");            
+                return {time: +tmp[0], value: +d.participants}
+
+            })
+          };
+        });
+        // I strongly advise to have a look to dataReady with
+    
+        var max = 0;
+        for (let i = 0; i < dataReady.length; i++) {
+          
+          dataReady[i].values.sort(function(a, b) {
+            return a.time - b.time;
+          });
+
+          if (Math.max(max, d3.max(dataReady[i].values, function(d) { return d.value; })) > max){
+            max = Math.max(max, d3.max(dataReady[i].values, function(d) { return d.value; }));
+          }
+        }
+
+        max = max * 1.15;
+        console.log(dataReady)
+
+
+        let mouseOver = function(d) {
+          d3.select(this)
+      	  .transition()
+      	  .duration(1000)
+      	  .attr('stroke-width',5);
+
+          tooltip.html('Athletes: ' + d.toElement.__data__.value  + '<br> Year: ' + d.toElement.__data__.time)
+            .style("left", (event.pageX + 15) + "px")
+            .style("top", (event.pageY - 28) + "px")
+            .transition().duration(400)
+            .style("opacity", 1); //! mudar o texto do tooltip
+        }
+
+        let mouseLeave = function() {
+          d3.select(this)
+          .transition()
+          .duration(1000)
+          .attr('stroke-width',0);
+          tooltip.transition().duration(300)
+            .style("opacity", 0);
+        }
+
+        // A color scale: one color for each group
+        const myColor = d3.scaleOrdinal()
+          .domain(allGroup)
+          .range(d3.schemeSet2);
+    
+        // Add X axis --> it is a date format
+        const x = d3.scaleLinear()
+          .domain(d3.extent(jogos, function(d) { 
+            tmp = d.split(" ");
+            return tmp[0]; }))
+          .range([ 0, width ]);
+        svg.append("g")
+          .attr("transform", `translate(0, ${height})`)
+          .call(d3.axisBottom(x));
+    
+        // Add Y axis
+
+        const y = d3.scaleLinear()
+          .domain( [0,max])
+          .range([ height, 0 ]);
+        svg.append("g")
+          .call(d3.axisLeft(y));
+    
+        // Add the lines
+        const line = d3.line()
+          .x(d => x(+d.time))
+          .y(d => y(+d.value))
+        svg.selectAll("myLines")
+          .data(dataReady)
+          .join("path")
+            .attr("class", d => d.name)
+            .attr("d", d => line(d.values))
+            .attr("stroke", d => myColor(d.name))
+            .style("stroke-width", 4)
+            .style("fill", "none")
+            
+
+    
+        // Add the points
+        svg
+          // First we need to enter in a group
+          .selectAll("myDots")
+          .data(dataReady)
+          .join('g')
+            .style("fill", d => myColor(d.name))
+            .attr("class", d => d.name)
+            
+            
+          // Second we need to enter in the 'values' part of this group
+          .selectAll("myPoints")
+          .data(d => d.values)
+          .join("circle")
+            .attr("cx", d => x(d.time))
+            .attr("cy", d => y(d.value))
+            .attr("r", 5)
+            .attr("stroke", "white")
+            .on("mouseover", mouseOver)
+            .on("mouseout", mouseLeave)
+            
+    
+        // Add a label at the end of each line
+        svg
+          .selectAll("myLabels")
+          .data(dataReady)
+          .join('g')
+            .append("text")
+              .attr("class", d => d.name)
+              .datum(d => { return {name: d.name, value: d.values[d.values.length - 1]}; }) // keep only the last value of each time series
+              .attr("transform", d => `translate(${x(d.value.time)},${y(d.value.value)})`) // Put the text at the position of the last point
+              .attr("x", 12) // shift the text a bit more right
+              .text(d => d.name)
+              .style("fill", d => myColor(d.name))
+              .style("font-size", 15)
+    
+        // Add a legend (interactive)
+        svg
+          .selectAll("myLegend")
+          .data(dataReady)
+          .join('g')
+            .append("text")
+              .attr('x', (d,i) => 30 + i*200)
+              .attr('y', 30)
+              .text(d => d.name)
+              .style("fill", d => myColor(d.name))
+              .style("font-size", 15)
+            .on("click", function(event,d){
+              // is the element currently visible ?
+              currentOpacity = d3.selectAll("." + d.name).style("opacity")
+              // Change the opacity: from 0 to 1 or from 1 to 0
+              d3.selectAll("." + d.name).transition().style("opacity", currentOpacity == 1 ? 0:1)
+    
+            })
+    })
+  }
+  </script>
+
+<script>
+
+function filter() {
+
+    var pais1 = document.getElementById("pais1").value;
+    var pais2 = document.getElementById("pais2").value;
+    var pais3 = document.getElementById("pais3").value;
+
+    var summer = document.getElementById("summer");
+    var winter = document.getElementById("winter");
+
+
+    var genero_all = document.getElementById("all");
+    var genero_m = document.getElementById("m");
+    var genero_f = document.getElementById("f");
+
+    var medalhas_any = document.getElementById("any");
+    var medalhas_all = document.getElementById("all_medal");
+    var medalhas_gold = document.getElementById("gold");
+    var medalhas_silver = document.getElementById("silver");
+    var medalhas_bronze = document.getElementById("bronze");
+
+    if (medalhas_all.checked){
+      document.getElementById("legenda_lateral").textContent="Numero de Participantes";
+    } else {
+      document.getElementById("legenda_lateral").textContent="Numero de Medalhas";
+    }
+
+    if (pais1 == undefined && pais2 == undefined && pais3 == undefined) {
+        alert("Por favor, selecione 3 países");
+        return
+    } 
+
+    if (!countries.includes(pais1) && pais1 != undefined) {
+        alert("País1 inválido");
+        return
+    }
+    if (!countries.includes(pais2) && pais2 != undefined) {
+        alert("País2 inválido");
+        return
+    }
+    if (!countries.includes(pais3) && pais3 != undefined) {
+        alert("País3 inválido");
+        return
+    }
+    
+    if (genero_all.checked == false && genero_m.checked == false && genero_f.checked == false) {
+        alert("Género não selecionado");
+        return
+    }
+    
+    if (summer.checked == false && winter.checked == false) {
+        alert("Temporada não selecionada");
+        return
+    } 
+    
+    if (medalhas_all.checked == false && medalhas_any.checked == false && medalhas_gold.checked == false && medalhas_silver.checked == false && medalhas_bronze.checked == false) {
+        alert("Medalhas não selecionadas");
+        return
+    }
+
+
+
+    console.log(pais1);
+    console.log(pais2);
+    console.log(pais3);
+
+    console.log(summer.checked);
+    console.log(winter.checked);
+
+    console.log(genero_all.checked);
+    console.log(genero_m.checked);
+    console.log(genero_f.checked);
+    console.log(medalhas_any.checked);
+    console.log(medalhas_all.checked);
+    console.log(medalhas_gold.checked);
+    console.log(medalhas_silver.checked);
+    console.log(medalhas_bronze.checked);
+
+    if (summer.checked == true) {
+        temporada = "summer"
+    } else if (winter.checked == true) {
+        temporada = "winter"
+    }
+
+    if (genero_all.checked == true) {
+        genero = "all"
+    } else if (genero_m.checked == true) {
+        genero = "m"
+    } else if (genero_f.checked == true) {
+        genero = "f"
+    }
+
+    if (medalhas_all.checked == true) {
+        medalhas = "all_medal"
+    } else if (medalhas_any.checked == true) {
+        medalhas = "any"
+    } else if (medalhas_gold.checked == true) {
+        medalhas = "gold"
+    } else if (medalhas_silver.checked == true) {
+        medalhas = "silver"
+    } else if (medalhas_bronze.checked == true) {
+        medalhas = "bronze"
+    }
+
+
+    create_graph(pais1, pais2, pais3, genero, medalhas, temporada);
+
+}
+
+</script>
+
+<script>
+    function autocomplete(inp, arr) {
+      /*the autocomplete function takes two arguments,
+      the text field element and an array of possible autocompleted values:*/
+      var currentFocus;
+      /*execute a function when someone writes in the text field:*/
+      inp.addEventListener("input", function(e) {
+          var a, b, i, val = this.value;
+          /*close any already open lists of autocompleted values*/
+          closeAllLists();
+          if (!val) { return false;}
+          currentFocus = -1;
+          /*create a DIV element that will contain the items (values):*/
+          a = document.createElement("DIV");
+          a.setAttribute("id", this.id + "autocomplete-list");
+          a.setAttribute("class", "autocomplete-items");
+          /*append the DIV element as a child of the autocomplete container:*/
+          this.parentNode.appendChild(a);
+          /*for each item in the array...*/
+          for (i = 0; i < arr.length; i++) {
+            /*check if the item starts with the same letters as the text field value:*/
+            if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+              /*create a DIV element for each matching element:*/
+              b = document.createElement("DIV");
+              /*make the matching letters bold:*/
+              b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+              b.innerHTML += arr[i].substr(val.length);
+              /*insert a input field that will hold the current array item's value:*/
+              b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+              /*execute a function when someone clicks on the item value (DIV element):*/
+              b.addEventListener("click", function(e) {
+                  /*insert the value for the autocomplete text field:*/
+                  inp.value = this.getElementsByTagName("input")[0].value;
+                  /*close the list of autocompleted values,
+                  (or any other open lists of autocompleted values:*/
+                  closeAllLists();
+              });
+              a.appendChild(b);
+            }
+          }
+      });
+      /*execute a function presses a key on the keyboard:*/
+      inp.addEventListener("keydown", function(e) {
+          var x = document.getElementById(this.id + "autocomplete-list");
+          if (x) x = x.getElementsByTagName("div");
+          if (e.keyCode == 40) {
+            /*If the arrow DOWN key is pressed,
+            increase the currentFocus variable:*/
+            currentFocus++;
+            /*and and make the current item more visible:*/
+            addActive(x);
+          } else if (e.keyCode == 38) { //up
+            /*If the arrow UP key is pressed,
+            decrease the currentFocus variable:*/
+            currentFocus--;
+            /*and and make the current item more visible:*/
+            addActive(x);
+          } else if (e.keyCode == 13) {
+            /*If the ENTER key is pressed, prevent the form from being submitted,*/
+            e.preventDefault();
+            if (currentFocus > -1) {
+              /*and simulate a click on the "active" item:*/
+              if (x) x[currentFocus].click();
+            }
+          }
+      });
+      function addActive(x) {
+        /*a function to classify an item as "active":*/
+        if (!x) return false;
+        /*start by removing the "active" class on all items:*/
+        removeActive(x);
+        if (currentFocus >= x.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (x.length - 1);
+        /*add class "autocomplete-active":*/
+        x[currentFocus].classList.add("autocomplete-active");
+      }
+      function removeActive(x) {
+        /*a function to remove the "active" class from all autocomplete items:*/
+        for (var i = 0; i < x.length; i++) {
+          x[i].classList.remove("autocomplete-active");
+        }
+      }
+      function closeAllLists(elmnt) {
+        /*close all autocomplete lists in the document,
+        except the one passed as an argument:*/
+        var x = document.getElementsByClassName("autocomplete-items");
+        for (var i = 0; i < x.length; i++) {
+          if (elmnt != x[i] && elmnt != inp) {
+            x[i].parentNode.removeChild(x[i]);
+          }
+        }
+      }
+      /*execute a function when someone clicks in the document:*/
+      document.addEventListener("click", function (e) {
+          closeAllLists(e.target);
+      });
+    }
+    
+    /*An array containing all the country names in the world:*/
+    var countries = ['Ethiopia', 'Nepal', 'Rwanda', 'Cambodia', 'Chad', 'Marshall Islands', 'India', 'Netherlands', 'Uruguay', 'Burundi', 'Virgin Islands, US', 'American Samoa', 'Guyana', 'Kiribati', 'Luxembourg', 'Paraguay', 'Benin', 'Samoa', 'Afghanistan', 'Micronesia', 'Liechtenstein', 'San Marino', 'Laos', 'Venezuela', 'El Salvador', 'Guinea', 'Guam', 'Bermuda', 'Andorra', 'Israel', 'Gambia', 'Panama', 'Suriname', 'Timor-Leste', 'Serbia', 'Grenada', 'Belarus', 'Equatorial Guinea', 'Malaysia', 'Poland', 'Austria', 'Philippines', 'China', 'Zimbabwe', 'Yemen', 'Bosnia and Herzegovina', 'Myanmar', 'Democratic Republic of the Congo', 'Ireland', 'Monaco', 'Haiti', 'Somalia', 'Turkmenistan', 'South Korea', 'Nigeria', 'Barbados', 'Papua New Guinea', 'Zambia', 'Swaziland', 'Oman', 'Morocco', 'Palau', 'Liberia', 'Eritrea', 'Finland', 'Albania', 'France', 'Trinidad', 'Lebanon', 'Cuba', 'Hungary', 'Guatemala', 'South Sudan', 'USA', 'Argentina', 'Libya', 'Vanuatu', 'Ghana', 'Iraq', 'Moldova', 'Mauritius', 'Nicaragua', 'Tanzania', 'Antigua', 'Namibia', 'Russia', 'Pakistan', 'Cayman Islands', 'Iceland', 'Jordan', 'South Africa', 'Belize', 'Angola', 'Saint Lucia', 'Taiwan', 'Madagascar', 'Japan', 'Kyrgyzstan', 'Kenya', 'Chile', 'Boliva', 'Brunei', 'Ivory Coast', 'Sweden', 'United Arab Emirates', 'Slovenia', 'Saint Kitts', 'Iran', 'Turkey', 'Singapore', 'Greece', 'Kosovo', 'Tajikistan', 'Italy', 'Vietnam', 'Colombia', 'Togo', 'Belgium', 'Seychelles', 'Bahamas', 'Cyprus', 'Curacao', 'Czech Republic', 'Botswana', 'Nauru', 'North Korea', 'Macedonia', 'Sao Tome and Principe', 'Mozambique', 'Peru', 'Sudan', 'Thailand', 'Brazil', 'Sierra Leone', 'Norway', 'Solomon Islands', 'Azerbaijan', 'Armenia', 'Kazakhstan', 'Uganda', 'Denmark', 'Tunisia', 'Egypt', 'Saudi Arabia', 'Fiji', 'Comoros', 'Ecuador', 'Romania', 'Cameroon', 'Bhutan', 'Bahrain', 'Georgia', 'Individual Olympic Athletes', 'Mauritania', 'Maldives', 'Mongolia', 'Saint Vincent', 'Costa Rica', 'Djibouti', 'Dominica', 'Dominican Republic', 'Virgin Islands, British', 'Gabon', 'Central African Republic', 'Malawi', 'Algeria', 'Lithuania', 'Tonga', 'Bulgaria', 'Palestine', 'UK', 'Ukraine', 'Croatia', 'Germany', 'Guinea-Bissau', 'Malta', 'Portugal', 'Republic of Congo', 'Mali', 'Niger', 'Qatar', 'Latvia', 'Canada', 'Australia', 'Slovakia', 'Cook Islands', 'New Zealand', 'Spain', 'Lesotho', 'Puerto Rico', 'Jamaica', 'Senegal', 'Indonesia', 'Uzbekistan', 'Burkina Faso', 'Aruba', 'Sri Lanka', 'Montenegro', 'Syria', 'Cape Verde', 'Honduras', 'Estonia', 'Mexico', 'Bangladesh', 'Kuwait', 'Switzerland']
+    /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+    autocomplete(document.getElementById("pais1"), countries);
+    autocomplete(document.getElementById("pais2"), countries);
+    autocomplete(document.getElementById("pais3"), countries);
+
+</script>
+
+</body>
+</html>
